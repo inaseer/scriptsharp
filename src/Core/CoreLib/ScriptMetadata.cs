@@ -282,7 +282,8 @@ namespace System.Runtime.CompilerServices {
     }
 
     [AttributeUsage(AttributeTargets.Assembly)]
-    [ScriptIgnore]
+    [NonScriptable]
+    [Imported]
     public sealed class ScriptDefaultMemberCasePreservation : Attribute {
         private bool _preserveMemberCase;
 

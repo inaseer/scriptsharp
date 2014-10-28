@@ -65,7 +65,7 @@ namespace ScriptSharp.Importer {
         }
 
         public static bool GetScriptDefaultMemberCasePreservation(ICustomAttributeProvider attributeProvider) {
-            CustomAttribute memberCasePreservationAttribute = GetAttribute(attributeProvider, "System.ScriptDefaultMemberCasePreservation");
+            CustomAttribute memberCasePreservationAttribute = GetAttribute(attributeProvider, "System.Runtime.CompilerServices.ScriptDefaultMemberCasePreservation");
             if (memberCasePreservationAttribute != null) {
                 return GetBoolAttributeArgument(memberCasePreservationAttribute);
             }
