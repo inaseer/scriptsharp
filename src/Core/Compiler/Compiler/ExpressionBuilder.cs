@@ -268,7 +268,33 @@ namespace ScriptSharp.Compiler {
             }
 
             Expression leftExpression = BuildExpression(node.LeftChild);
-            Expression rightExpression = BuildExpression(node.RightChild);
+            Expression rightExpression = null;
+
+            if (node.Operator == TokenType.Is ||
+                node.Operator == TokenType.As)
+            {
+              SymbolFilter filter = SymbolFilter.Types;
+              Debug.Assert(node.RightChild is NameNode ||
+                           node.RightChild is ArrayTypeNode ||
+                           node.RightChild is IntrinsicTypeNode);
+              if (node.RightChild is NameNode)
+              {
+                rightExpression = ProcessNameNode((NameNode)node.RightChild, filter);
+              }
+              else if (node.RightChild is ArrayTypeNode)
+              {
+                rightExpression = ProcessArrayTypeNode((ArrayTypeNode)node.RightChild);
+              }
+              else if (node.RightChild is IntrinsicTypeNode)
+              {
+                rightExpression = ProcessIntrinsicType((IntrinsicTypeNode)node.RightChild);
+              }
+              Debug.Assert(rightExpression != null);
+            }
+            else
+            {
+              rightExpression = BuildExpression(node.RightChild);
+            }
 
             if ((node.Operator == TokenType.PlusEqual) ||
                 (node.Operator == TokenType.MinusEqual)) {

@@ -13,7 +13,7 @@ namespace System.Collections.Generic {
     [IgnoreNamespace]
     [Imported]
     [ScriptName("Array")]
-    public sealed class List<T> : ICollection<T> {
+    public sealed class List<T> : ICollection<T>, IList<T> {
 
         public List() {
         }
@@ -47,7 +47,7 @@ namespace System.Collections.Generic {
         public void AddRange(T[] items) {
         }
 
-        public void AddRange(List<T> items) {
+        public void AddRange(IList<T> items) {
         }
 
         public List<T> Clone() {
@@ -62,6 +62,10 @@ namespace System.Collections.Generic {
         }
 
         public bool Contains(object item) {
+            return false;
+        }
+
+        public bool Contains(T item) {
             return false;
         }
 
@@ -98,6 +102,10 @@ namespace System.Collections.Generic {
         public IEnumerator<T> GetEnumerator() {
             return null;
         }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {                
+           return null;
+        }        
 
         public ListGrouping<T>[] GroupBy(ListItemKeyGenerator<T> keyCallback) {
             return null;

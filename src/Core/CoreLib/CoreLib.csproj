@@ -61,6 +61,7 @@
     <Compile Include="Collections\Generic\Dictionary.cs" />
     <Compile Include="Collections\Generic\KeyValuePair.cs" />
     <Compile Include="Collections\Generic\ListGrouping.cs" />
+    <Compile Include="Collections\Generic\IList.cs" />
     <Compile Include="Collections\Generic\List.cs" />
     <Compile Include="Collections\Generic\IReadonlyCollection.cs" />
     <Compile Include="Collections\Generic\ICollection.cs" />
@@ -160,6 +161,5 @@
     <Compile Include="Testing\TestEngine.cs" />
     <Compile Include="Testing\TestClass.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

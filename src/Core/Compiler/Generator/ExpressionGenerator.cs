@@ -130,8 +130,8 @@ namespace ScriptSharp.Generator {
             }
             else if ((expression.Operator == Operator.Is) ||
                      (expression.Operator == Operator.As)) {
-                TypeExpression typeExpression = expression.RightOperand as TypeExpression;
-                Debug.Assert(typeExpression != null);
+                TypeExpression typeExpression = expression.RightOperand as TypeExpression;                
+                Debug.Assert(typeExpression != null);                
 
                 writer.Write("Type.");
                 if (expression.Operator == Operator.Is) {
