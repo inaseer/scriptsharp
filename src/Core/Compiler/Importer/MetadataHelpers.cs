@@ -64,6 +64,14 @@ namespace ScriptSharp.Importer {
             return null;
         }
 
+        public static bool GetScriptDefaultMemberCasePreservation(ICustomAttributeProvider attributeProvider) {
+            CustomAttribute memberCasePreservationAttribute = GetAttribute(attributeProvider, "System.ScriptDefaultMemberCasePreservation");
+            if (memberCasePreservationAttribute != null) {
+                return GetBoolAttributeArgument(memberCasePreservationAttribute);
+            }
+            return false;
+        }
+
         public static bool IsCompilerGeneratedType(TypeDefinition type) {
             return GetAttribute(type, "System.Runtime.CompilerServices.CompilerGeneratedAttribute") != null;
         }
@@ -113,9 +121,17 @@ namespace ScriptSharp.Importer {
             return GetAttribute(type, "System.Runtime.CompilerServices.NonScriptableAttribute") == null;
         }
 
-        public static bool ShouldPreserveCase(ICustomAttributeProvider attributeProvider) {
-            return GetAttribute(attributeProvider, "System.Runtime.CompilerServices.PreserveCaseAttribute") != null;
-        }
+        public static bool ShouldPreserveCase(ICustomAttributeProvider attributeProvider, bool defaultPreserveCaseValue) {            
+            if (GetAttribute(attributeProvider, "System.Runtime.CompilerServices.PreserveCaseAttribute") != null) {
+                return true;
+            }
+
+            if (GetAttribute(attributeProvider, "System.Runtime.CompilerServices.DontPreserveCaseAttribute") != null) {            
+              return false;
+            }
+
+            return defaultPreserveCaseValue;
+        }        
 
         public static bool ShouldSkipFromScript(ICustomAttributeProvider attributeProvider) {
             return GetAttribute(attributeProvider, "System.Runtime.CompilerServices.ScriptSkipAttribute") != null;
@@ -157,6 +173,10 @@ namespace ScriptSharp.Importer {
 
         public static bool ShouldUseEnumValues(TypeDefinition type) {
             return GetAttribute(type, "System.Runtime.CompilerServices.NumericValuesAttribute") != null;
+        }
+
+        private static bool GetBoolAttributeArgument(CustomAttribute attribute) {
+            return (bool)attribute.ConstructorArguments[0].Value;
         }
     }
 }

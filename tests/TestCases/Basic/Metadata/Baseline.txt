@@ -2919,6 +2919,41 @@ Types:
                 Generated Name: reset
                 Abstract: True
         
+    Interface: IList`1
+        Application Type: False
+        Public: True
+        Generated Name: Array
+        Members:
+            Field: Count
+                AssociatedType: Int32
+                Visibility: Public
+                Generated Name: length
+            Method: IndexOf
+                AssociatedType: Int32
+                Visibility: Public
+                Generated Name: indexOf
+                Abstract: True
+            Method: Insert
+                AssociatedType: Void
+                Visibility: Public
+                Generated Name: insert
+                Abstract: True
+            Method: RemoveAt
+                AssociatedType: Void
+                Visibility: Public
+                Generated Name: removeAt
+                Abstract: True
+            Method: Add
+                AssociatedType: Void
+                Visibility: Public
+                Generated Name: add
+                Abstract: True
+            Method: Contains
+                AssociatedType: Boolean
+                Visibility: Public
+                Generated Name: contains
+                Abstract: True
+        
     Interface: IReadonlyCollection`1
         Application Type: False
         Public: True

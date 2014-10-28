@@ -222,13 +222,23 @@ namespace System.Runtime.CompilerServices {
     }
 
     /// <summary>
-    /// This attribute allows suppressing the default behavior of converting
-    /// member names to camel-cased equivalents in the generated JavaScript.
+    /// This attribute ensures that member names casing is preserved.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Event | AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     [NonScriptable]
     [Imported]
     public sealed class PreserveCaseAttribute : Attribute {
+    }
+
+    /// <summary>
+    /// This attribute doesn't preserve the member casing and member names are camel cased
+    /// according to JavaScripts conventions.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Event | AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
+    [NonScriptable]
+    [Imported]
+    public sealed class DontPreserveCaseAttribute : Attribute
+    {
     }
 
     /// <summary>
@@ -269,5 +279,24 @@ namespace System.Runtime.CompilerServices {
     [NonScriptable]
     [Imported]
     public sealed class ScriptSkipAttribute : Attribute {
+    }
+
+    [AttributeUsage(AttributeTargets.Assembly)]
+    [ScriptIgnore]
+    public sealed class ScriptDefaultMemberCasePreservation : Attribute {
+        private bool _preserveMemberCase;
+
+        public ScriptDefaultMemberCasePreservation(bool preserveMemberCase) {
+            _preserveMemberCase = preserveMemberCase;
+        }
+
+        public bool PerserveMemberCase {
+            get {
+                return _preserveMemberCase;
+            }
+            set {
+                _preserveMemberCase = value;
+            }
+        }
     }
 }

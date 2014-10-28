@@ -1,0 +1,39 @@
+Type.registerNamespace('CasePreservationTests');
+
+////////////////////////////////////////////////////////////////////////////////
+// CasePreservationTests.Foo
+
+CasePreservationTests.Foo = function(i, j) {
+}
+CasePreservationTests.Foo.prototype = {
+    
+    toString: function() {
+        return 'Foo';
+    },
+    
+    sum: function(i) {
+        return 0;
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// CasePreservationTests.Bar
+
+CasePreservationTests.Bar = function(i, j, f) {
+    CasePreservationTests.Bar.initializeBase(this, [ i, j ]);
+}
+CasePreservationTests.Bar.prototype = {
+    
+    Sum: function() {
+        return CasePreservationTests.Bar.callBaseMethod(this, 'sum', [ 1 ]) + 1;
+    },
+    
+    ToString: function() {
+        return CasePreservationTests.Bar.callBaseMethod(this, 'toString') + ' -> Bar';
+    }
+}
+
+
+CasePreservationTests.Foo.registerClass('CasePreservationTests.Foo');
+CasePreservationTests.Bar.registerClass('CasePreservationTests.Bar', CasePreservationTests.Foo);

@@ -220,7 +220,7 @@ namespace ScriptSharp.Importer {
 
                 EnumerationFieldSymbol fieldSymbol =
                     new EnumerationFieldSymbol(fieldName, enumTypeSymbol, fieldValue, fieldType);
-                ImportMemberDetails(fieldSymbol, null, field);
+                ImportMemberDetails(fieldSymbol, enumTypeSymbol, null, field);
 
                 enumTypeSymbol.AddMember(fieldSymbol);
             }
@@ -248,7 +248,7 @@ namespace ScriptSharp.Importer {
                 }
 
                 EventSymbol eventSymbol = new EventSymbol(eventName, typeSymbol, eventHandlerType);
-                ImportMemberDetails(eventSymbol, eventDef.AddMethod, eventDef);
+                ImportMemberDetails(eventSymbol, typeSymbol, eventDef.AddMethod, eventDef);
 
                 typeSymbol.AddMember(eventSymbol);
             }
@@ -286,13 +286,13 @@ namespace ScriptSharp.Importer {
                 FieldSymbol fieldSymbol = new FieldSymbol(fieldName, typeSymbol, fieldType);
 
                 fieldSymbol.SetVisibility(visibility);
-                ImportMemberDetails(fieldSymbol, null, field);
+                ImportMemberDetails(fieldSymbol, typeSymbol, null, field);
 
                 typeSymbol.AddMember(fieldSymbol);
             }
         }
 
-        private void ImportMemberDetails(MemberSymbol memberSymbol, MethodDefinition methodDefinition, ICustomAttributeProvider attributeProvider) {
+        private void ImportMemberDetails(MemberSymbol memberSymbol, TypeSymbol typeSymbol, MethodDefinition methodDefinition, ICustomAttributeProvider attributeProvider) {
             if (methodDefinition != null) {
                 MemberVisibility visibility = MemberVisibility.PrivateInstance;
                 if (methodDefinition.IsStatic) {
@@ -308,7 +308,7 @@ namespace ScriptSharp.Importer {
                 memberSymbol.SetVisibility(visibility);
             }
 
-            memberSymbol.SetNameCasing(MetadataHelpers.ShouldPreserveCase(attributeProvider));
+            memberSymbol.SetNameCasing(MetadataHelpers.ShouldPreserveCase(attributeProvider, typeSymbol.MemberCasePreservation));
 
             string scriptName = MetadataHelpers.GetScriptName(attributeProvider);
             if (scriptName != null) {
@@ -396,7 +396,7 @@ namespace ScriptSharp.Importer {
                 }
 
                 MethodSymbol methodSymbol = new MethodSymbol(methodName, typeSymbol, returnType);
-                ImportMemberDetails(methodSymbol, method, method);
+                ImportMemberDetails(methodSymbol, typeSymbol, method, method);
 
                 if (method.HasGenericParameters) {
                     List<GenericParameterSymbol> genericArguments = new List<GenericParameterSymbol>();
@@ -452,7 +452,7 @@ namespace ScriptSharp.Importer {
                 }
 
                 string propertyName = property.Name;
-                bool preserveCase = MetadataHelpers.ShouldPreserveCase(property);
+                bool preserveCase = MetadataHelpers.ShouldPreserveCase(property, typeSymbol.MemberCasePreservation);
                 bool intrinsicProperty = MetadataHelpers.ShouldTreatAsIntrinsicProperty(property);
 
                 TypeSymbol propertyType = ResolveType(property.PropertyType);
@@ -463,7 +463,7 @@ namespace ScriptSharp.Importer {
                 PropertySymbol propertySymbol = null;
                 if (property.Parameters.Count != 0) {
                     IndexerSymbol indexerSymbol = new IndexerSymbol(typeSymbol, propertyType);
-                    ImportMemberDetails(indexerSymbol, property.GetMethod, property);
+                    ImportMemberDetails(indexerSymbol, typeSymbol, property.GetMethod, property);
 
                     if (intrinsicProperty) {
                         indexerSymbol.SetIntrinsic();
@@ -480,7 +480,7 @@ namespace ScriptSharp.Importer {
                         // instead of a property
 
                         FieldSymbol fieldSymbol = new FieldSymbol(propertyName, typeSymbol, propertyType);
-                        ImportMemberDetails(fieldSymbol, property.GetMethod, property);
+                        ImportMemberDetails(fieldSymbol, typeSymbol, property.GetMethod, property);
 
                         string alias = MetadataHelpers.GetScriptAlias(property);
                         if (String.IsNullOrEmpty(alias) == false) {
@@ -491,7 +491,7 @@ namespace ScriptSharp.Importer {
                     }
                     else {
                         propertySymbol = new PropertySymbol(propertyName, typeSymbol, propertyType);
-                        ImportMemberDetails(propertySymbol, property.GetMethod, property);
+                        ImportMemberDetails(propertySymbol, typeSymbol, property.GetMethod, property);
                     }
                 }
 
@@ -670,13 +670,15 @@ namespace ScriptSharp.Importer {
                 _options.AddExecutionDependency(scriptName);
             }
 
+            bool defaultMemberCasePreservation = MetadataHelpers.GetScriptDefaultMemberCasePreservation(assembly);
+
             foreach (TypeDefinition type in assembly.MainModule.Types) {
                 try {
                     if (MetadataHelpers.IsCompilerGeneratedType(type)) {
                         continue;
                     }
 
-                    ImportType(mdSource, type, coreAssembly, scriptNamespace, scriptName);
+                    ImportType(mdSource, type, coreAssembly, scriptNamespace, scriptName, defaultMemberCasePreservation);
                 }
                 catch (Exception e) {
                     Debug.Fail(e.ToString());
@@ -684,7 +686,7 @@ namespace ScriptSharp.Importer {
             }
         }
 
-        private void ImportType(MetadataSource mdSource, TypeDefinition type, bool inScriptCoreAssembly, string assemblyScriptNamespace, string assemblyScriptName) {
+        private void ImportType(MetadataSource mdSource, TypeDefinition type, bool inScriptCoreAssembly, string assemblyScriptNamespace, string assemblyScriptName, bool defaultMemberCasePreservation) {
             if (type.IsPublic == false) {
                 return;
             }
@@ -696,6 +698,7 @@ namespace ScriptSharp.Importer {
             string namespaceName = type.Namespace;
             string scriptNamespace = MetadataHelpers.GetScriptNamespace(type);
             string scriptName = MetadataHelpers.GetScriptName(type);
+            bool memberCasePreservation = MetadataHelpers.ShouldPreserveCase(type, defaultMemberCasePreservation);
 
             if (String.IsNullOrEmpty(scriptNamespace) && (String.IsNullOrEmpty(assemblyScriptNamespace) == false)) {
                 scriptNamespace = assemblyScriptNamespace;
@@ -769,6 +772,7 @@ namespace ScriptSharp.Importer {
 
                 namespaceSymbol.AddType(typeSymbol);
                 _importedTypes.Add(typeSymbol);
+                typeSymbol.MemberCasePreservation = memberCasePreservation;
             }
         }
 

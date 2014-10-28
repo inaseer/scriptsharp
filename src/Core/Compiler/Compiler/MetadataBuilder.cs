@@ -174,8 +174,8 @@ namespace ScriptSharp.Compiler {
                 memberSymbol.SetVisibility(GetVisibility(memberNode, typeSymbol));
             }
 
-            bool preserveCase = (AttributeNode.FindAttribute(attributes, "PreserveCase") != null);
-            memberSymbol.SetNameCasing(preserveCase);
+            bool preserveCase = ShouldPreserveCase(attributes, typeSymbol.MemberCasePreservation);
+            memberSymbol.SetNameCasing(preserveCase);            
 
             string scriptName = GetAttributeValue(attributes, "ScriptName");
             if (scriptName != null) {
@@ -310,6 +310,7 @@ namespace ScriptSharp.Compiler {
             symbols.ScriptPrefix = scriptPrefix;
 
             string assemblyScriptNamespace = GetAssemblyScriptNamespace(compilationUnits);
+            bool defaultMemberCasePreservation = GetDefaultMemberCasePreservation(compilationUnits);
             List<TypeSymbol> types = new List<TypeSymbol>();
 
             // Build all the types first.
@@ -399,7 +400,7 @@ namespace ScriptSharp.Compiler {
 
                                 // Merge interesting bits of information onto the primary type symbol as well
                                 // representing this partial class
-                                BuildType(partialTypeSymbol, userTypeNode);
+                                BuildType(partialTypeSymbol, userTypeNode, defaultMemberCasePreservation);
 
                                 if (String.IsNullOrEmpty(typeScriptNamespace) == false) {
                                     partialTypeSymbol.ScriptNamespace = typeScriptNamespace;
@@ -407,7 +408,7 @@ namespace ScriptSharp.Compiler {
                             }
                         }
 
-                        TypeSymbol typeSymbol = BuildType(userTypeNode, namespaceSymbol);
+                        TypeSymbol typeSymbol = BuildType(userTypeNode, namespaceSymbol, defaultMemberCasePreservation);
                         if (typeSymbol != null) {
                             typeSymbol.SetParseContext(userTypeNode);
                             typeSymbol.SetParentSymbolTable(symbols);
@@ -656,7 +657,7 @@ namespace ScriptSharp.Compiler {
             }
         }
 
-        private TypeSymbol BuildType(UserTypeNode typeNode, NamespaceSymbol namespaceSymbol) {
+        private TypeSymbol BuildType(UserTypeNode typeNode, NamespaceSymbol namespaceSymbol, bool defaultMemberCasePreservation) {
             Debug.Assert(typeNode != null);
             Debug.Assert(namespaceSymbol != null);
 
@@ -715,7 +716,7 @@ namespace ScriptSharp.Compiler {
                     typeSymbol.SetPublic();
                 }
 
-                BuildType(typeSymbol, typeNode);
+                BuildType(typeSymbol, typeNode, defaultMemberCasePreservation);
 
                 if (namespaceSymbol.Name.EndsWith(_options.TestsSubnamespace, StringComparison.Ordinal)) {
                     typeSymbol.SetTestType();
@@ -725,7 +726,8 @@ namespace ScriptSharp.Compiler {
             return typeSymbol;
         }
 
-        private void BuildType(TypeSymbol typeSymbol, UserTypeNode typeNode) {
+        private void BuildType(TypeSymbol typeSymbol, UserTypeNode typeNode, bool defaultMemberCasePreservation)
+        {
             Debug.Assert(typeSymbol != null);
             Debug.Assert(typeNode != null);
 
@@ -742,6 +744,9 @@ namespace ScriptSharp.Compiler {
             if (AttributeNode.FindAttribute(attributes, "PreserveName") != null) {
                 typeSymbol.DisableNameTransformation();
             }
+
+            bool memberCasePreservation = ShouldPreserveCase(attributes, defaultMemberCasePreservation);
+            typeSymbol.MemberCasePreservation = memberCasePreservation;
 
             string scriptName = GetAttributeValue(attributes, "ScriptName");
             if (scriptName != null) {
@@ -870,6 +875,31 @@ namespace ScriptSharp.Compiler {
             return GetAttributeValue(attributes, "ScriptNamespace");
         }
 
+        private bool GetDefaultMemberCasePreservation(ParseNodeList compilationUnits) {
+            foreach (CompilationUnitNode compilationUnit in compilationUnits) {
+                foreach (AttributeBlockNode attribBlock in compilationUnit.Attributes) {
+                    bool? preserveMemberCase = GetBoolAttributeValue(attribBlock.Attributes, "ScriptDefaultMemberCasePreservation");
+                    if (preserveMemberCase != null) {
+                        return (bool)preserveMemberCase;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private bool? GetBoolAttributeValue(ParseNodeList attributes, string attributeName) {
+            AttributeNode node = AttributeNode.FindAttribute(attributes, attributeName);
+
+            if ((node != null) &&
+                (node.Arguments.Count != 0) && (node.Arguments[0].NodeType == ParseNodeType.Literal)) {
+                Debug.Assert(((LiteralNode)node.Arguments[0]).Value is bool);
+
+                return (bool)((LiteralNode)node.Arguments[0]).Value;
+            }
+            return null;
+        }
+
+
         private MemberVisibility GetVisibility(MemberNode node, TypeSymbol typeSymbol) {
             if (typeSymbol.Type == SymbolType.Interface) {
                 return MemberVisibility.Public;
@@ -895,6 +925,19 @@ namespace ScriptSharp.Compiler {
             }
 
             return visibility;
+        }
+
+        public static bool ShouldPreserveCase(ParseNodeList attributeNodes, bool defaultPreserveCaseValue) {
+
+          if (AttributeNode.FindAttribute(attributeNodes, "PreserveCase") != null) {
+            return true;
+          }
+
+          if (AttributeNode.FindAttribute(attributeNodes, "DontPreserveCase") != null) {
+            return false;
+          }
+
+          return defaultPreserveCaseValue;
         }
     }
 }
