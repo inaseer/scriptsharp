@@ -101,8 +101,8 @@ test.App.main = function test_App$main() {
 test.App2 = function test_App2() {
 }
 test.App2.prototype = {
-    _httpMethod: null,
-    _sortMode: null,
+    httpMethod: null,
+    sortMode: null,
     
     run: function test_App2$run() {
         var method = 'POST';

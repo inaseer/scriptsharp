@@ -3,7 +3,7 @@
 
 window.MyApp = function MyApp() {
 }
-MyApp._alertData = function MyApp$_alertData(url) {
+MyApp.alertData = function MyApp$alertData(url) {
     $.ajax({ url: url, type: 'GET', dataType: 'html', contentType: 'application/json', processData: false, success: function(result, textData, xhr) {
         var s = xhr.responseText;
         alert(s);

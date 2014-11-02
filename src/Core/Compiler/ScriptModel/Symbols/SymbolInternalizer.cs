@@ -11,9 +11,6 @@ namespace ScriptSharp.ScriptModel {
     internal sealed class SymbolInternalizer : ISymbolTransformer {
 
         private static string GenerateName(string name) {
-            if (name.StartsWith("_", StringComparison.OrdinalIgnoreCase) == false) {
-                return "_" + Utility.CreateCamelCaseName(name);
-            }
             return null;
         }
 

@@ -77,12 +77,12 @@ test.BaseClass = function test_BaseClass(domElement, name, count) {
     /// <field name="instanceField" type="Number" integer="true">
     /// An instance field.
     /// </field>
-    /// <field name="_domElement" type="Object" domElement="true">
+    /// <field name="domElement" type="Object" domElement="true">
     /// A private field.
     /// </field>
     /// <field name="__initialized" type="Function">
     /// </field>
-    this._domElement = domElement;
+    this.domElement = domElement;
 }
 test.BaseClass.get_totalCount = function test_BaseClass$get_totalCount() {
     /// <summary>
@@ -101,7 +101,7 @@ test.BaseClass.staticMethod = function test_BaseClass$staticMethod(length) {
 }
 test.BaseClass.prototype = {
     instanceField: 0,
-    _domElement: null,
+    domElement: null,
     
     get_name: function test_BaseClass$get_name() {
         /// <summary>
@@ -141,7 +141,7 @@ test.BaseClass.prototype = {
         return 0;
     },
     
-    get__privateName: function test_BaseClass$get__privateName() {
+    get_privateName: function test_BaseClass$get_privateName() {
         /// <summary>
         /// Gets the private name.
         /// </summary>
@@ -211,7 +211,7 @@ test.BaseClass.prototype = {
         }
     },
     
-    _privateMethod: function test_BaseClass$_privateMethod(count) {
+    privateMethod: function test_BaseClass$privateMethod(count) {
         /// <summary>
         /// Private method.
         /// </summary>
@@ -260,9 +260,9 @@ test.DerivedClass.prototype = {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// test._internalClass
+// test.InternalClass
 
-test._internalClass = function test__internalClass() {
+test.InternalClass = function test_InternalClass() {
     /// <summary>
     /// An internal class.
     /// </summary>
@@ -270,9 +270,9 @@ test._internalClass = function test__internalClass() {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// test._internalClassWithNoComments
+// test.InternalClassWithNoComments
 
-test._internalClassWithNoComments = function test__internalClassWithNoComments() {
+test.InternalClassWithNoComments = function test_InternalClassWithNoComments() {
 }
 
 
@@ -288,7 +288,7 @@ window.run = function test_GlobalMethodsClass$run() {
 
 test.BaseClass.registerClass('test.BaseClass');
 test.DerivedClass.registerClass('test.DerivedClass', test.BaseClass);
-test._internalClass.registerClass('test._internalClass');
-test._internalClassWithNoComments.registerClass('test._internalClassWithNoComments');
+test.InternalClass.registerClass('test.InternalClass');
+test.InternalClassWithNoComments.registerClass('test.InternalClassWithNoComments');
 test.BaseClass.constantField = 3;
 test.BaseClass.staticField = null;
