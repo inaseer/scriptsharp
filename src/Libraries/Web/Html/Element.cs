@@ -12,7 +12,7 @@ namespace System.Html {
     [IgnoreNamespace]
     [Imported]
     [ScriptName("Object")]
-    public class Element {
+    public class Element : Node {
 
         protected internal Element() {
         }
